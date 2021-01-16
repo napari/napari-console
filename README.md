@@ -1,4 +1,4 @@
-# napari-console
+# napari-console (WIP, under active development)
 
 [![License](https://img.shields.io/pypi/l/napari-console.svg?color=green)](https://github.com/napari/napari-console/raw/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-console.svg?color=green)](https://pypi.org/project/napari-console)
