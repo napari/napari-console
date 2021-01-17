@@ -162,6 +162,9 @@ class QtConsole(RichJupyterWidget):
 
     def closeEvent(self, event):
         """Clean up the integrated console in napari."""
+        # Disconnect theme update
+        self.viewer.events.theme.disconnect(self._update_theme)
+
         if self.kernel_client is not None:
             self.kernel_client.stop_channels()
         if self.kernel_manager is not None and self.kernel_manager.has_kernel:
