@@ -18,7 +18,7 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.platform }} py${{ matrix.python-version }}
+    name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{ matrix.backend }}
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
@@ -63,6 +63,7 @@ jobs:
         run: tox
         env:
           PLATFORM: ${{ matrix.platform }}
+          BACKEND: ${{ matrix.backend }}
 
       - name: Coverage
         uses: codecov/codecov-action@v1
