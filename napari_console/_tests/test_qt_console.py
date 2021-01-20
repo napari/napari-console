@@ -2,48 +2,47 @@ from unittest import mock
 
 from IPython.terminal.interactiveshell import TerminalInteractiveShell
 
+import pytest
 from napari_console import QtConsole
 
 
-def test_console(qtbot):
+@pytest.fixture
+def make_test_viewer(qtbot, request):
+    from napari import Viewer
+    viewers = []
+
+    def actual_factory(*model_args, viewer_class=Viewer, **model_kwargs):
+        model_kwargs.setdefault('show', False)
+        viewer = viewer_class(*model_args, **model_kwargs)
+        viewers.append(viewer)
+        return viewer
+
+    yield actual_factory
+
+    for viewer in viewers:
+        viewer.close() 
+
+
+def test_console(qtbot, make_test_viewer):
     """Test creating the console."""
-    console = QtConsole()
+    viewer = make_test_viewer()
+    console = QtConsole(viewer)
     qtbot.addWidget(console)
     assert console.kernel_client is not None
+    assert console.viewer is viewer
 
 
-def test_console_user_variables(qtbot):
-    """Test creating the console with user variables."""
-    console = QtConsole({'var': 3})
-    qtbot.addWidget(console)
-    assert console.kernel_client is not None
-    assert 'var' in console.shell.user_ns
-    assert console.shell.user_ns['var'] == 3
-
-
-def test_multiple_consoles(qtbot):
-    """Test creating multiple consoles."""
-    console_a = QtConsole({'var_a': 3})
-    qtbot.addWidget(console_a)
-    console_b = QtConsole({'var_b': 4})
-    qtbot.addWidget(console_b)
-
-    assert console_a.kernel_client is not None
-    assert console_b.kernel_client is not None
-    assert 'var_a' in console_a.shell.user_ns
-    assert 'var_b' in console_a.shell.user_ns
-
-
-def test_ipython_console(qtbot):
+def test_ipython_console(qtbot, make_test_viewer):
     """Test mock-creating a console from within ipython."""
 
     def mock_get_ipython():
         return TerminalInteractiveShell()
 
     with mock.patch(
-        'napari._qt.widgets.qt_console.get_ipython',
+        'napari_console.qt_console.get_ipython',
         side_effect=mock_get_ipython,
     ):
-        console = QtConsole()
+        viewer = make_test_viewer()
+        console = QtConsole(viewer)
         qtbot.addWidget(console)
         assert console.kernel_client is None
