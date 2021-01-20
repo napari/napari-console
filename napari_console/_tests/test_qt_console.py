@@ -2,8 +2,25 @@ from unittest import mock
 
 from IPython.terminal.interactiveshell import TerminalInteractiveShell
 
+import pytest
 from napari_console import QtConsole
-from napari import Viewer
+
+
+@pytest.fixture
+def make_test_viewer(qtbot, request):
+    from napari import Viewer
+    viewers = []
+
+    def actual_factory(*model_args, viewer_class=Viewer, **model_kwargs):
+        model_kwargs.setdefault('show', False)
+        viewer = viewer_class(*model_args, **model_kwargs)
+        viewers.append(viewer)
+        return viewer
+
+    yield actual_factory
+
+    for viewer in viewers:
+        viewer.close() 
 
 
 def test_console(qtbot, make_test_viewer):
