@@ -11,13 +11,12 @@ on:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
   pull_request:
     branches:
-      - master
       - main
   workflow_dispatch:
 
 jobs:
   test:
-    name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{ matrix.backend }}
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
@@ -81,7 +80,6 @@ jobs:
         run: tox
         env:
           PLATFORM: ${{ matrix.platform }}
-          BACKEND: ${{ matrix.backend }}
 
       - name: Coverage
         uses: codecov/codecov-action@v1
