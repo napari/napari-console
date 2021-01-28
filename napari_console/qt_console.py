@@ -11,7 +11,6 @@ from qtconsole.inprocess import QtInProcessKernelManager
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtpy.QtGui import QColor
 
-from napari.utils.theme import get_theme, template
 
 
 def str_to_rgb(arg):
@@ -151,6 +150,8 @@ class QtConsole(RichJupyterWidget):
 
     def _update_theme(self, event=None):
         """Update the napari GUI theme."""
+        from napari.utils.theme import get_theme, template
+
         theme = get_theme(self.viewer.theme)
         raw_stylesheet = self.viewer.window.qt_viewer.raw_stylesheet
         # template and apply the primary stylesheet
