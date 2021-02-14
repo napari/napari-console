@@ -153,7 +153,7 @@ class QtConsole(RichJupyterWidget):
         from napari.utils.theme import get_theme
         from napari.qt import get_stylesheet
 
-		# qtconsole unfortunately won't inherit the parent stylesheet
+        # qtconsole unfortunately won't inherit the parent stylesheet
         # so it needs to be directly set
         if hasattr(self.viewer.window.qt_viewer, 'raw_stylesheet'):
             # Use napari 0.4.5 syntax, can be removed after 0.4.6
