@@ -1,5 +1,6 @@
 import re
 import sys
+import warnings
 
 from ipykernel.connect import get_connection_file
 from ipykernel.inprocess.ipkernel import InProcessInteractiveShell
@@ -158,7 +159,11 @@ class QtConsole(RichJupyterWidget):
         raw_stylesheet = get_stylesheet()
         # template and apply the primary stylesheet
         # (should probably be done by napari)
-        theme = get_theme(self.viewer.theme)
+        # After napari 0.4.11, themes are evented models rather than
+        # dicts.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", FutureWarning)
+            theme = get_theme(self.viewer.theme)
         self.style_sheet = template(raw_stylesheet, **theme)
 
         # After napari 0.4.6 the following syntax will be allowed
