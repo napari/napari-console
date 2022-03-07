@@ -13,6 +13,9 @@ from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtpy.QtGui import QColor
 
 
+from napari.utils.naming import CallerFrame
+
+from types import FrameType
 
 def str_to_rgb(arg):
     """Convert an rgb string 'rgb(x,y,z)' to a list of ints [x,y,z]."""
@@ -53,6 +56,14 @@ if sys.platform.startswith("win") and sys.version_info >= (3, 8):
             # WindowsProactorEventLoopPolicy is not compatible with tornado 6
             # fallback to the pre-3.8 default of Selector
             asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+
+
+def _not_napari(n: int, frame: FrameType):
+    # in-n-out is used in napari for dependency injection.
+    for pref in ["napari", "in_n_out"]:
+        if frame.f_globals.get("__name__", "").startswith(pref):
+            return True
+    return False
 
 
 class QtConsole(RichJupyterWidget):
@@ -128,6 +139,7 @@ class QtConsole(RichJupyterWidget):
             raise ValueError(
                 'ipython shell not recognized; ' f'got {type(shell)}'
             )
+        self._capture()
         # Add any user variables
         user_variables = user_variables or {}
         self.push(user_variables)
@@ -139,6 +151,13 @@ class QtConsole(RichJupyterWidget):
 
         # TODO: Try to get console from jupyter to run without a shift click
         # self.execute_on_complete_input = True
+
+    def _capture(self):
+        """
+        Capture variable from first enclosing scope that is not napari
+        """
+        with CallerFrame(_not_napari) as c:
+            self.push(dict(c.namespace))
 
     def _update_theme(self, event=None):
         """Update the napari GUI theme."""
