@@ -161,9 +161,7 @@ class QtConsole(RichJupyterWidget):
         # (should probably be done by napari)
         # After napari 0.4.11, themes are evented models rather than
         # dicts.
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", FutureWarning)
-            theme = get_theme(self.viewer.theme)
+        theme = get_theme(self.viewer.theme, as_dict=True)
         self.style_sheet = template(raw_stylesheet, **theme)
 
         # After napari 0.4.6 the following syntax will be allowed
