@@ -82,6 +82,10 @@ class QtConsole(RichJupyterWidget):
         self.viewer.events.theme.connect(self._update_theme)
         user_variables = {'viewer': self.viewer}
 
+        # this makes calling `setFocus()` on a QtConsole give keyboard focus to
+        # the underlying `QTextEdit` widget
+        self.setFocusProxy(self._control)
+
         # get current running instance or create new instance
         shell = get_ipython()
 

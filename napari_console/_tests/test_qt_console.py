@@ -46,3 +46,30 @@ def test_ipython_console(qtbot, make_test_viewer):
         console = QtConsole(viewer)
         qtbot.addWidget(console)
         assert console.kernel_client is None
+
+
+def test_console_focus_proxy(qtbot, make_test_viewer):
+    """Test setting/clearing focus on a QtConsole sets/clears focus on the underlying QTextEdit"""
+    viewer = make_test_viewer()
+
+    # setFocus does nothing if the widget is not shown
+    viewer.show()
+    viewer.window._qt_viewer.toggle_console_visibility()
+    console = viewer.window._qt_viewer.console
+
+    console.clearFocus()
+
+    assert (
+        not console._control.hasFocus()
+    ), "underlying QTextEdit widget should not have focus after clearing"
+
+    console.setFocus()
+
+    # assert the console control has focus
+    # timeout (in ms) avoids flaky tests since setting focus takes time
+    def control_has_focus():
+        assert (
+            console._control.hasFocus()
+        ), "underlying QTextEdit widget never received focus"
+
+    qtbot.waitUntil(control_has_focus, timeout=500)
