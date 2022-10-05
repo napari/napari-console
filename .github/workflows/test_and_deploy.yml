@@ -59,17 +59,11 @@ jobs:
         run: pip install tox-conda
 
       - name: Test with tox
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ] ; then
-            Xvfb :99 -screen 0 1024x768x24 & sleep 3
-            herbstluftwm & sleep 1
-            python -m tox -vv
-          else
-            python -m tox -vv
-          fi
-        shell: bash
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: python -m tox -vv
         env:
-          DISPLAY: ":99"
+          WM: herbstluftwm
           PLATFORM: ${{ matrix.platform }}
           PYVISTA_OFF_SCREEN: True
 
