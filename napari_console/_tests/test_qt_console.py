@@ -53,9 +53,11 @@ def test_console_focus_proxy(qtbot, make_test_viewer):
     viewer = make_test_viewer()
 
     # setFocus does nothing if the widget is not shown
-    viewer.show()
-    viewer.window._qt_viewer.toggle_console_visibility()
     console = viewer.window._qt_viewer.console
+    # qtbot.addWidget(console)  # causes an error
+    with qtbot.waitExposed(console):
+        viewer.show()
+        viewer.window._qt_viewer.toggle_console_visibility()
 
     console.clearFocus()
 
@@ -72,4 +74,4 @@ def test_console_focus_proxy(qtbot, make_test_viewer):
             console._control.hasFocus()
         ), "underlying QTextEdit widget never received focus"
 
-    qtbot.waitUntil(control_has_focus, timeout=500)
+    qtbot.waitUntil(control_has_focus)
