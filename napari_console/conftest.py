@@ -11,12 +11,20 @@ def linux_wm():
     """Start a WM in the background for tests that need a WM.
 
     This will only run on Linux and in CI (determined by CI env var).
+
+    The window manager start command can be set via env var `WM_START_CMD`
+    (default is `herbstluftwm`).
     """
-    wm = os.environ.get("WM", "herbstluftwm")
+    wm_start_cmd = os.environ.get("WM_START_CMD", "herbstluftwm")
     proc = None
     if platform.system() == "Linux" and os.environ.get("CI"):
-        proc = subprocess.Popen([wm])
+        proc = subprocess.Popen([wm_start_cmd])
         time.sleep(1)
+        if proc.poll() is not None:
+            raise RuntimeError(
+                f"window manager '{wm_start_cmd}' process [{proc.pid}] exited, "
+                f"return code: {proc.returncode}"
+            )
 
     yield proc
 
@@ -26,4 +34,4 @@ def linux_wm():
             proc.wait(timeout=20)
         except subprocess.TimeoutExpired:
             proc.kill()
-            raise subprocess.SubprocessError(f"failed to terminate window manager '{wm}'")
+            raise RuntimeError(f"failed to terminate window manager '{wm_start_cmd}'")

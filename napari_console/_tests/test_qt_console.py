@@ -54,7 +54,6 @@ def test_console_focus_proxy(qtbot, make_test_viewer, linux_wm):
 
     # setFocus does nothing if the widget is not shown
     console = viewer.window._qt_viewer.console
-    # qtbot.addWidget(console)  # causes an error
     with qtbot.waitExposed(console):
         viewer.show()
         viewer.window._qt_viewer.toggle_console_visibility()
@@ -67,7 +66,6 @@ def test_console_focus_proxy(qtbot, make_test_viewer, linux_wm):
 
     console.setFocus()
 
-    # assert the console control has focus
     # timeout (in ms) avoids flaky tests since setting focus takes time
     def control_has_focus():
         assert (
