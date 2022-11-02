@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.fixture
-def linux_wm():
+def linux_wm_local():
     """Start a WM in the background for tests that need a WM.
 
     This will only run on Linux and in CI (determined by CI env var).
