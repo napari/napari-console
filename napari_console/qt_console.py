@@ -125,18 +125,13 @@ class QtConsole(RichJupyterWidget):
             self.push = lambda var: None
 
         elif isinstance(shell, ZMQInteractiveShell):
-            # if launching from jupyter notebook, connect to the existing
-            # kernel
-            kernel_client = QtKernelClient(
-                connection_file=get_connection_file()
-            )
-            kernel_client.load_connection_file()
-            kernel_client.start_channels()
-
+            # if launching from jupyter notebook, then adding a console is
+            # not supported. Instead users should continue to use jupyter for
+            # the same functionality.
+            self.kernel_client = None
             self.kernel_manager = None
-            self.kernel_client = kernel_client
-            self.shell = shell
-            self.push = self.shell.push
+            self.shell = None
+            self.push = lambda var: None
         else:
             raise ValueError(
                 'ipython shell not recognized; ' f'got {type(shell)}'
