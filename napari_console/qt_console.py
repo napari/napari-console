@@ -115,28 +115,15 @@ class QtConsole(RichJupyterWidget):
             self.kernel_client = kernel_client
             self.shell = kernel_manager.kernel.shell
             self.push = self.shell.push
-        elif isinstance(shell, TerminalInteractiveShell):
-            # if launching from an ipython terminal then adding a console is
-            # not supported. Instead users should use the ipython terminal for
-            # the same functionality.
+        elif isinstance(shell, (TerminalInteractiveShell, ZMQInteractiveShell)):
+            # if launching from an ipython or jupyter then adding a console is
+            # not supported. Instead users should use the existing interactive 
+            # terminal for the same functionality.
             self.kernel_client = None
             self.kernel_manager = None
             self.shell = None
             self.push = lambda var: None
 
-        elif isinstance(shell, ZMQInteractiveShell):
-            # if launching from jupyter notebook, connect to the existing
-            # kernel
-            kernel_client = QtKernelClient(
-                connection_file=get_connection_file()
-            )
-            kernel_client.load_connection_file()
-            kernel_client.start_channels()
-
-            self.kernel_manager = None
-            self.kernel_client = kernel_client
-            self.shell = shell
-            self.push = self.shell.push
         else:
             raise ValueError(
                 'ipython shell not recognized; ' f'got {type(shell)}'
