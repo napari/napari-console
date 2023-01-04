@@ -55,7 +55,9 @@ jobs:
 
       - name: Install tox-conda
         if: runner.os == 'macOS' && matrix.python-version == '3.9'
-        run: pip install tox-conda
+        #  we are explicit about tox-gh-action or pip resolver will downgrade
+        #  tox, which will be incompatible with tox-gh-action
+        run: pip install tox-conda tox-gh-actions
 
       - name: Test with tox
         uses: GabrielBB/xvfb-action@v1
