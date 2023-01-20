@@ -48,7 +48,7 @@ def test_ipython_console(qtbot, make_test_viewer):
         assert console.kernel_client is None
 
 
-def test_console_focus_proxy(qtbot, make_test_viewer, linux_wm_local):
+def test_console_focus_proxy(qtbot, make_test_viewer):
     """Test setting/clearing focus on a QtConsole sets/clears focus on the underlying QTextEdit"""
     viewer = make_test_viewer()
 
