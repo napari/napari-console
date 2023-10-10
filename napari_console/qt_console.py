@@ -70,7 +70,7 @@ class QtConsole(RichJupyterWidget):
 
     Parameters
     ----------
-    max_depth : int|None
+    max_depth : int
         maximum number of frames to consider being outside of napari.
 
     Attributes
@@ -83,13 +83,14 @@ class QtConsole(RichJupyterWidget):
         Shell for the kernel if it exists, None otherwise.
     """
 
-    max_depth: Optional[int]
+    min_depth: Optional[int]
 
-    def __init__(self, viewer: "napari.viewer.Viewer", *, max_depth=None):
+    def __init__(self, viewer: "napari.viewer.Viewer", *, min_depth=1):
         super().__init__()
 
         self.viewer = viewer
-        self.max_depth = max_depth
+
+        self.min_depth = min_depth
 
         # Connect theme update
         self.viewer.events.theme.connect(self._update_theme)
@@ -154,11 +155,17 @@ class QtConsole(RichJupyterWidget):
         # TODO: Try to get console from jupyter to run without a shift click
         # self.execute_on_complete_input = True
 
-    def _not_napari(n: int, frame: FrameType):
+    def _in_napari(self, n: int, frame: FrameType):
+        """
+        Predicates that return Wether we are in napari by looking
+        at:
+            1) the frames modules names:
+            2) the min_depth
+        """
         # in-n-out is used in napari for dependency injection.
-        if n >= self.max_depth:
-            return False
-        for pref in ["napari.", "in_n_out."]:
+        if n <= self.min_depth:
+            return True
+        for pref in ["napari.", "napari_console.", "in_n_out."]:
             if frame.f_globals.get("__name__", "").startswith(pref):
                 return True
         return False
@@ -167,7 +174,7 @@ class QtConsole(RichJupyterWidget):
         """
         Capture variable from first enclosing scope that is not napari
         """
-        with CallerFrame(self._not_napari) as c:
+        with CallerFrame(self._in_napari) as c:
             self.push(dict(c.namespace))
 
     def _update_theme(self, event=None):
