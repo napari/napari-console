@@ -2,6 +2,9 @@ import re
 import sys
 import warnings
 
+from typing import Optional
+from types import FrameType
+
 from ipykernel.connect import get_connection_file
 from ipykernel.inprocess.ipkernel import InProcessInteractiveShell
 from ipykernel.zmqshell import ZMQInteractiveShell
@@ -15,7 +18,6 @@ from qtpy.QtGui import QColor
 
 from napari.utils.naming import CallerFrame
 
-from types import FrameType
 
 def str_to_rgb(arg):
     """Convert an rgb string 'rgb(x,y,z)' to a list of ints [x,y,z]."""
@@ -58,21 +60,18 @@ if sys.platform.startswith("win") and sys.version_info >= (3, 8):
             asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
 
 
-def _not_napari(n: int, frame: FrameType):
-    # in-n-out is used in napari for dependency injection.
-    for pref in ["napari", "in_n_out"]:
-        if frame.f_globals.get("__name__", "").startswith(pref):
-            return True
-    return False
 
 
 class QtConsole(RichJupyterWidget):
-    """Qt view for the console, an integrated iPython terminal in napari.
+    """Qt view for the console, an integrated IPython terminal in napari.
+
+    This Qt console will automatically embed the first caller namespace when
+    not in napari by walking up the frame.
 
     Parameters
     ----------
-    user_variables : dict
-        Dictionary of user variables to declare in console name space.
+    max_depth : int|None
+        maximum number of frames to consider being outside of napari.
 
     Attributes
     ----------
@@ -84,10 +83,13 @@ class QtConsole(RichJupyterWidget):
         Shell for the kernel if it exists, None otherwise.
     """
 
-    def __init__(self, viewer: 'napari.viewer.Viewer'):
+    max_depth: Optional[int]
+
+    def __init__(self, viewer: "napari.viewer.Viewer", *, max_depth=None):
         super().__init__()
 
         self.viewer = viewer
+        self.max_depth = max_depth
 
         # Connect theme update
         self.viewer.events.theme.connect(self._update_theme)
@@ -152,11 +154,20 @@ class QtConsole(RichJupyterWidget):
         # TODO: Try to get console from jupyter to run without a shift click
         # self.execute_on_complete_input = True
 
+    def _not_napari(n: int, frame: FrameType):
+        # in-n-out is used in napari for dependency injection.
+        if n >= self.max_depth:
+            return False
+        for pref in ["napari.", "in_n_out."]:
+            if frame.f_globals.get("__name__", "").startswith(pref):
+                return True
+        return False
+
     def _capture(self):
         """
         Capture variable from first enclosing scope that is not napari
         """
-        with CallerFrame(_not_napari) as c:
+        with CallerFrame(self._not_napari) as c:
             self.push(dict(c.namespace))
 
     def _update_theme(self, event=None):
