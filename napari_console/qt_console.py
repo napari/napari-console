@@ -175,7 +175,8 @@ class QtConsole(RichJupyterWidget):
         Capture variable from first enclosing scope that is not napari
         """
         with CallerFrame(self._in_napari) as c:
-            self.push(dict(c.namespace))
+            if c.frame.f_globals.get("__name__", "") != "__main__" and "NAPARI_EMBED" not in c.frame.f_globals:
+                self.push(dict(c.namespace))
 
     def _update_theme(self, event=None):
         """Update the napari GUI theme."""
