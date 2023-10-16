@@ -95,6 +95,7 @@ def test_console_disable_pass_variable(make_test_viewer, monkeypatch):
 
     viewer = make_test_viewer()
     console = viewer.window._qt_viewer.console
+    assert locals()['variable1'] == variable1
     assert "variable1" not in console.shell.user_ns
 
     assert "mock" not in console.shell.user_ns
