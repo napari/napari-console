@@ -19,6 +19,9 @@ from qtpy.QtGui import QColor
 from napari.utils.naming import CallerFrame
 
 
+_PREF_LIST = ["napari.", "napari_console.", "in_n_out."]
+
+
 def str_to_rgb(arg):
     """Convert an rgb string 'rgb(x,y,z)' to a list of ints [x,y,z]."""
     return list(
@@ -165,7 +168,7 @@ class QtConsole(RichJupyterWidget):
         # in-n-out is used in napari for dependency injection.
         if n <= self.min_depth:
             return True
-        for pref in ["napari.", "napari_console.", "in_n_out."]:
+        for pref in _PREF_LIST:
             if frame.f_globals.get("__name__", "").startswith(pref):
                 return True
         return False
