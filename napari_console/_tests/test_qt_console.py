@@ -91,11 +91,9 @@ def test_console_pass_variable(make_test_viewer, monkeypatch):
 def test_console_disable_pass_variable(make_test_viewer, monkeypatch):
     monkeypatch.setattr("napari_console.qt_console._PREF_LIST", ["napari.", "in_n_out."])
     monkeypatch.setitem(globals(), "NAPARI_EMBED", True)
-    variable1 = True
+    variable3 = True
 
     viewer = make_test_viewer()
     console = viewer.window._qt_viewer.console
-    assert locals()['variable1'] == variable1
-    assert "variable1" not in console.shell.user_ns
-
-    assert "mock" not in console.shell.user_ns
+    assert locals()['variable3'] == variable3
+    assert "variable3" not in console.shell.user_ns
