@@ -20,16 +20,40 @@ and review the napari docs for plugin developers:
 https://napari.org/docs/plugins/index.html
 -->
 
-## Capturing variables
+## Local variables
 
-Since napari-console 0.0.9 the napari-console try to determine the variables that are defined in place where 
-napari viewer is created and pass them to the console. 
-Technically it looks for a first frame of stacktrace which is not in `napari_console`, `napari` and `in_n_out` modules.
-Then it looks for the variables in the frame's `f_locals` and `f_globals` and passes them to the console.
+In napari-console 0.0.8 and earlier, the console `locals()` namespace only
+contained a reference to the napari viewer that enclosed the console.
 
-If you create napari viewer in your own application and want to disable this behavior you can create
-`NAPARI_EMBED` global variable before creating the viewer.
+Since version 0.0.9, it instead contains everything in the enclosing frame that
+called napari. That is, if your Python code is:
 
+```python
+import napari
+import numpy as np
+from scipy import ndimage as ndi
+
+image = np.random.random((500, 500))
+labels = ndi.label(image > 0.7)[0]
+
+viewer, image_layer = napari.imshow(image)
+labels_layer = viewer.add_labels(labels)
+
+napari.run()
+```
+
+Then the napari console will have the variables `np`, `napari`, `ndi`, `image`,
+`labels`, `viewer`, `image_layer`, and `labels_layer` in its namespace.
+
+This is implemented by inspecting the Python stack when the console is first
+instantiated, finding the first frame that is outside of the `napari_console`,
+`napari`, and `in_n_out` modules, and passing the variables in the frame's
+`f_locals` and `f_globals` to the console namespace.
+
+If you want to disable this behavior (for example, because you are embedding
+napari and the console within some larger application), you can add
+`NAPARI_EMBED=1` to your environment variables before instantiating the
+console.
 
 ## Installation
 
