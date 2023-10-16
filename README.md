@@ -3,8 +3,8 @@
 [![License](https://img.shields.io/pypi/l/napari-console.svg?color=green)](https://github.com/napari/napari-console/raw/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-console.svg?color=green)](https://pypi.org/project/napari-console)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-console.svg?color=green)](https://python.org)
-[![tests](https://github.com/sofroniewn/napari-console/workflows/tests/badge.svg)](https://github.com/sofroniewn/napari-console/actions)
-[![codecov](https://codecov.io/gh/sofroniewn/napari-console/branch/master/graph/badge.svg)](https://codecov.io/gh/sofroniewn/napari-console)
+[![tests](https://github.com/napari/napari-console/workflows/tests/badge.svg)](https://github.com/napari/napari-console/actions)
+[![codecov](https://codecov.io/gh/napari/napari-console/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/napari-console)
 
 A plugin that adds a console to napari
 
@@ -19,6 +19,17 @@ https://github.com/napari/cookiecutter-napari-plugin#getting-started
 and review the napari docs for plugin developers:
 https://napari.org/docs/plugins/index.html
 -->
+
+## Capturing variables
+
+Since napari-console 0.0.9 the napari-console try to determine the variables that are defined in place where 
+napari viewer is created and pass them to the console. 
+Technically it looks for a first frame of stacktrace which is not in `napari_console`, `napari` and `in_n_out` modules.
+Then it looks for the variables in the frame's `f_locals` and `f_globals` and passes them to the console.
+
+If you create napari viewer in your own application and want to disable this behavior you can create
+`NAPARI_EMBED` global variable before creating the viewer.
+
 
 ## Installation
 
