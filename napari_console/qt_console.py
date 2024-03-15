@@ -145,7 +145,9 @@ class QtConsole(RichJupyterWidget):
         from napari.utils.theme import get_theme
 
         # Set syntax styling and highlighting using theme
-        theme = get_theme(self.viewer.theme).to_rgb_dict()
+        # The `as_dict` kwarg has been deprecated since Napari 0.5.0 and will
+        # be removed in future version. You can use `get_theme(...).to_rgb_dict()`
+        theme = get_theme(self.viewer.theme, as_dict=True)
         self.syntax_style = theme['syntax_style']
         bracket_color = QColor(*str_to_rgb(theme['highlight']))
         self._bracket_matcher.format.setBackground(bracket_color)
