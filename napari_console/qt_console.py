@@ -142,24 +142,22 @@ class QtConsole(RichJupyterWidget):
 
     def _update_theme(self, event=None):
         """Update the napari GUI theme."""
-        from napari.utils.theme import get_theme, template
+        from napari.utils.theme import get_theme
         from napari.qt import get_stylesheet
+        from napari.settings import get_settings
 
         # qtconsole unfortunately won't inherit the parent stylesheet
         # so it needs to be directly set
-        raw_stylesheet = get_stylesheet()
-        # template and apply the primary stylesheet
         # (should probably be done by napari)
-        # After napari 0.4.11, themes are evented models rather than
-        # dicts.
-        theme = get_theme(self.viewer.theme, as_dict=True)
-        self.style_sheet = template(raw_stylesheet, **theme)
-
-        # After napari 0.4.6 the following syntax will be allowed
-        # self.style_sheet = get_stylesheet(self.viewer.theme)
-
+        settings = get_settings()
+        font_size = settings.appearance.font_size
+        extra_variables = {'font_size': f'{font_size}pt'}
+        self.style_sheet = get_stylesheet(
+            self.viewer.theme, extra_variables=extra_variables
+        )
 
         # Set syntax styling and highlighting using theme
+        theme = get_theme(self.viewer.theme).to_rgb_dict()
         self.syntax_style = theme['syntax_style']
         bracket_color = QColor(*str_to_rgb(theme['highlight']))
         self._bracket_matcher.format.setBackground(bracket_color)
