@@ -143,18 +143,6 @@ class QtConsole(RichJupyterWidget):
     def _update_theme(self, event=None):
         """Update the napari GUI theme."""
         from napari.utils.theme import get_theme
-        from napari.qt import get_stylesheet
-        from napari.settings import get_settings
-
-        # qtconsole unfortunately won't inherit the parent stylesheet
-        # so it needs to be directly set
-        # (should probably be done by napari)
-        settings = get_settings()
-        font_size = settings.appearance.font_size
-        extra_variables = {'font_size': f'{font_size}pt'}
-        self.style_sheet = get_stylesheet(
-            self.viewer.theme, extra_variables=extra_variables
-        )
 
         # Set syntax styling and highlighting using theme
         theme = get_theme(self.viewer.theme).to_rgb_dict()
