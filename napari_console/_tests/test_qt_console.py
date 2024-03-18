@@ -26,7 +26,7 @@ def make_test_viewer(qtbot, request):
 def test_console(qtbot, make_test_viewer):
     """Test creating the console."""
     viewer = make_test_viewer()
-    style_sheet = viewer.window._qt_viewer.styleSheet()
+    style_sheet = viewer.window._qt_window.styleSheet()
     console = QtConsole(viewer, style_sheet)
     qtbot.addWidget(console)
     assert console.kernel_client is not None
