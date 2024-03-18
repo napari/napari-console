@@ -73,7 +73,7 @@ class QtConsole(RichJupyterWidget):
         Shell for the kernel if it exists, None otherwise.
     """
 
-    def __init__(self, viewer: 'napari.viewer.Viewer'):
+    def __init__(self, viewer: 'napari.viewer.Viewer', style_sheet: str = ''):
         super().__init__()
 
         self.viewer = viewer
@@ -135,18 +135,23 @@ class QtConsole(RichJupyterWidget):
         self.enable_calltips = False
 
         # Set stylings
-        self._update_theme()
+        self._update_theme(style_sheet=style_sheet)
 
         # TODO: Try to get console from jupyter to run without a shift click
         # self.execute_on_complete_input = True
 
-    def _update_theme(self, event=None):
+    def _update_theme(self, event=None, style_sheet=''):
         """Update the napari GUI theme."""
         from napari.utils.theme import get_theme
 
+        # qtconsole unfortunately won't inherit the parent stylesheet
+        # so it needs to be directly set when required
+        if style_sheet:
+            self.style_sheet = style_sheet
+
         # Set syntax styling and highlighting using theme
         # The `as_dict` kwarg has been deprecated since Napari 0.5.0 and will
-        # be removed in future version. You can use `get_theme(...).to_rgb_dict()`
+        # be removed in future version. Use `get_theme(...).to_rgb_dict()` in the future
         theme = get_theme(self.viewer.theme, as_dict=True)
         self.syntax_style = theme['syntax_style']
         bracket_color = QColor(*str_to_rgb(theme['highlight']))
