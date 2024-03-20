@@ -142,17 +142,34 @@ class QtConsole(RichJupyterWidget):
 
     def _update_theme(self, event=None, style_sheet=''):
         """Update the napari GUI theme."""
-        from napari.utils.theme import get_theme
+        from napari.qt import get_stylesheet
+        from napari.utils.theme import get_theme, template
 
         # qtconsole unfortunately won't inherit the parent stylesheet
-        # so it needs to be directly set when required
+        # so it needs to be directly set when required.
         if style_sheet:
+            # napari 0.5.x uses the `style_sheet` kwarg
             self.style_sheet = style_sheet
+            # For napari 0.5.0 the `as_dict` kwarg in the `get_theme` function
+            # is deprecated and will be removed in a future version.
+            # So `get_theme(...).to_rgb_dict()` is used here instead.
+            theme = get_theme(self.viewer.theme).to_rgb_dict()
+        else:
+            # napari 0.4.x doesn't use the `style_sheet` kwarg
+            raw_stylesheet = get_stylesheet()
+            # template and apply the primary stylesheet
+            # (should probably be done by napari)
+            # After napari 0.4.11, themes are evented models rather than
+            # dicts.
+            # After napari 0.5.0 the `as_dict` kwarg has been deprecated
+            # and will be removed in a future version.
+            theme = get_theme(self.viewer.theme, as_dict=True)
+            self.style_sheet = template(raw_stylesheet, **theme)
+
+            # After napari 0.4.6 the following syntax will be allowed
+            # self.style_sheet = get_stylesheet(self.viewer.theme)
 
         # Set syntax styling and highlighting using theme
-        # The `as_dict` kwarg has been deprecated since Napari 0.5.0 and will
-        # be removed in future version. Use `get_theme(...).to_rgb_dict()` in the future
-        theme = get_theme(self.viewer.theme, as_dict=True)
         self.syntax_style = theme['syntax_style']
         bracket_color = QColor(*str_to_rgb(theme['highlight']))
         self._bracket_matcher.format.setBackground(bracket_color)
