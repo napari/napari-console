@@ -145,15 +145,17 @@ class QtConsole(RichJupyterWidget):
         from napari.qt import get_stylesheet
         from napari.utils.theme import get_theme, template
 
+        # After napari 0.5.0 the `as_dict` kwarg has been deprecated
+        # and will be removed in a future version.
+        theme = get_theme(self.viewer.theme, as_dict=True)
+        # In the future, with napari 0.5.0+, the following syntax will be allowed
+        # theme = get_theme(self.viewer.theme).to_rgb_dict()
+
         # qtconsole unfortunately won't inherit the parent stylesheet
         # so it needs to be directly set when required.
         if style_sheet:
             # napari 0.5.x uses the `style_sheet` kwarg
             self.style_sheet = style_sheet
-            # For napari 0.5.0 the `as_dict` kwarg in the `get_theme` function
-            # is deprecated and will be removed in a future version.
-            # So `get_theme(...).to_rgb_dict()` is used here instead.
-            theme = get_theme(self.viewer.theme).to_rgb_dict()
         else:
             # napari 0.4.x doesn't use the `style_sheet` kwarg
             raw_stylesheet = get_stylesheet()
@@ -161,9 +163,6 @@ class QtConsole(RichJupyterWidget):
             # (should probably be done by napari)
             # After napari 0.4.11, themes are evented models rather than
             # dicts.
-            # After napari 0.5.0 the `as_dict` kwarg has been deprecated
-            # and will be removed in a future version.
-            theme = get_theme(self.viewer.theme, as_dict=True)
             self.style_sheet = template(raw_stylesheet, **theme)
 
             # After napari 0.4.6 the following syntax will be allowed
