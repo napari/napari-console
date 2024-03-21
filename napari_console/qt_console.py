@@ -77,9 +77,6 @@ class QtConsole(RichJupyterWidget):
         super().__init__()
 
         self.viewer = viewer
-
-        # Connect theme update
-        self.viewer.events.theme.connect(self._update_theme)
         user_variables = {'viewer': self.viewer}
 
         # this makes calling `setFocus()` on a QtConsole give keyboard focus to
