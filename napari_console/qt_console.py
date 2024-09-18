@@ -42,7 +42,7 @@ FIXME: if/when tornado supports the defaults in asyncio,
 remove and bump tornado requirement for py38
 borrowed from ipykernel:  https://github.com/ipython/ipykernel/pull/456
 """
-if sys.platform.startswith("win") and sys.version_info >= (3, 8):
+if sys.platform.startswith("win"):
     import asyncio
 
     try:
