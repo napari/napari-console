@@ -73,13 +73,10 @@ class QtConsole(RichJupyterWidget):
         Shell for the kernel if it exists, None otherwise.
     """
 
-    def __init__(self, viewer: 'napari.viewer.Viewer'):
+    def __init__(self, viewer: 'napari.viewer.Viewer', style_sheet: str = ''):
         super().__init__()
 
         self.viewer = viewer
-
-        # Connect theme update
-        self.viewer.events.theme.connect(self._update_theme)
         user_variables = {'viewer': self.viewer}
 
         # this makes calling `setFocus()` on a QtConsole give keyboard focus to
@@ -135,29 +132,38 @@ class QtConsole(RichJupyterWidget):
         self.enable_calltips = False
 
         # Set stylings
-        self._update_theme()
+        self._update_theme(style_sheet=style_sheet)
 
         # TODO: Try to get console from jupyter to run without a shift click
         # self.execute_on_complete_input = True
 
-    def _update_theme(self, event=None):
+    def _update_theme(self, event=None, style_sheet=''):
         """Update the napari GUI theme."""
-        from napari.utils.theme import get_theme, template
         from napari.qt import get_stylesheet
+        from napari.utils.theme import get_theme, template
+
+        # After napari 0.5.0 the `as_dict` kwarg has been deprecated
+        # and will be removed in a future version.
+        theme = get_theme(self.viewer.theme, as_dict=True)
+        # In the future, with napari 0.5.0+, the following syntax will be allowed
+        # theme = get_theme(self.viewer.theme).to_rgb_dict()
 
         # qtconsole unfortunately won't inherit the parent stylesheet
-        # so it needs to be directly set
-        raw_stylesheet = get_stylesheet()
-        # template and apply the primary stylesheet
-        # (should probably be done by napari)
-        # After napari 0.4.11, themes are evented models rather than
-        # dicts.
-        theme = get_theme(self.viewer.theme, as_dict=True)
-        self.style_sheet = template(raw_stylesheet, **theme)
+        # so it needs to be directly set when required.
+        if style_sheet:
+            # napari 0.5.x uses the `style_sheet` kwarg
+            self.style_sheet = style_sheet
+        else:
+            # napari 0.4.x doesn't use the `style_sheet` kwarg
+            raw_stylesheet = get_stylesheet()
+            # template and apply the primary stylesheet
+            # (should probably be done by napari)
+            # After napari 0.4.11, themes are evented models rather than
+            # dicts.
+            self.style_sheet = template(raw_stylesheet, **theme)
 
-        # After napari 0.4.6 the following syntax will be allowed
-        # self.style_sheet = get_stylesheet(self.viewer.theme)
-
+            # After napari 0.4.6 the following syntax will be allowed
+            # self.style_sheet = get_stylesheet(self.viewer.theme)
 
         # Set syntax styling and highlighting using theme
         self.syntax_style = theme['syntax_style']
