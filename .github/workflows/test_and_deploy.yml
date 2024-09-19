@@ -56,7 +56,7 @@ jobs:
       - name: Test with tox
         uses: aganders3/headless-gui@v2
         with:
-          run: python -m tox -vv
+          run: python -m tox -v
         env:
           PLATFORM: ${{ matrix.platform }}
           PYVISTA_OFF_SCREEN: True
