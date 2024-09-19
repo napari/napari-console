@@ -8,3 +8,79 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "napari_console/_version.py"
+
+[project]
+name = "napari-console"
+description = "A plugin that adds a console to napari"
+authors = [
+  {name = "napari team", email = "napari-steering-council@googlegroups.com"}
+]
+license = {text = "BSD-3-Clause"}
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: napari",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Testing",
+]
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.9"
+dependencies = [
+  "IPython>=7.7.0",
+  "ipykernel>=5.2.0",
+  "qtconsole!=4.7.6,!=5.4.2,>=4.5.1",
+  "qtpy>=1.7.0",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+
+pyside2 = [
+  "PySide2>=5.13.2,!=5.15.0 ; python_version < '3.11' and platform_machine != 'arm64'",
+]
+pyside6_experimental = [
+  "PySide6 < 6.5 ; python_version < '3.12'"
+]
+pyqt6 = [
+  "PyQt6 > 6.5",
+  "PyQt6 != 6.6.1 ; platform_system == 'Darwin'"
+]
+pyside = [
+  "napari-console[pyside2]"
+]
+pyqt5 = [
+  "PyQt5>=5.13.2,!=5.15.0",
+]
+pyqt = [
+  "napari-console[pyqt5]"
+]
+qt = [
+  "napari-console[pyqt]"
+]
+testing = [
+  "napari[pyqt]"
+]
+
+[project.urls]
+Homepage = "https://github.com/napari/napari-console"
+"Bug Tracker" = "https://github.com/napari/napari-console/issues"
+"Source Code" = "https://github.com/napari/napari-console"
+
+[project.entry-points."napari.manifest"]
+napari-console = "napari_console:napari.yaml"
+
+[tool.setuptools]
+include-package-data = true
+packages = {"find" = {"include" = ["napari_console"]}}
+
+[tool.setuptools.package-data]
+napari_console = ["napari.yaml"]
