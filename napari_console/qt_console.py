@@ -2,6 +2,9 @@ import re
 import sys
 import warnings
 
+from typing import Optional
+from types import FrameType
+
 from ipykernel.connect import get_connection_file
 from ipykernel.inprocess.ipkernel import InProcessInteractiveShell
 from ipykernel.zmqshell import ZMQInteractiveShell
@@ -12,6 +15,11 @@ from qtconsole.inprocess import QtInProcessKernelManager
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtpy.QtGui import QColor
 
+
+from napari.utils.naming import CallerFrame
+
+
+_PREF_LIST = ["napari.", "napari_console.", "in_n_out."]
 
 
 def str_to_rgb(arg):
@@ -55,13 +63,18 @@ if sys.platform.startswith("win"):
             asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
 
 
+
+
 class QtConsole(RichJupyterWidget):
-    """Qt view for the console, an integrated iPython terminal in napari.
+    """Qt view for the console, an integrated IPython terminal in napari.
+
+    This Qt console will automatically embed the first caller namespace when
+    not in napari by walking up the frame.
 
     Parameters
     ----------
-    user_variables : dict
-        Dictionary of user variables to declare in console name space.
+    max_depth : int
+        maximum number of frames to consider being outside of napari.
 
     Attributes
     ----------
@@ -73,10 +86,15 @@ class QtConsole(RichJupyterWidget):
         Shell for the kernel if it exists, None otherwise.
     """
 
-    def __init__(self, viewer: 'napari.viewer.Viewer', style_sheet: str = ''):
+    min_depth: Optional[int]
+
+    def __init__(self, viewer: 'napari.viewer.Viewer', *, min_depth: int = 1, style_sheet: str = ''):
         super().__init__()
 
         self.viewer = viewer
+
+        self.min_depth = min_depth
+
         user_variables = {'viewer': self.viewer}
 
         # this makes calling `setFocus()` on a QtConsole give keyboard focus to
@@ -125,6 +143,7 @@ class QtConsole(RichJupyterWidget):
             raise ValueError(
                 'ipython shell not recognized; ' f'got {type(shell)}'
             )
+        self._capture()
         # Add any user variables
         user_variables = user_variables or {}
         self.push(user_variables)
@@ -136,6 +155,29 @@ class QtConsole(RichJupyterWidget):
 
         # TODO: Try to get console from jupyter to run without a shift click
         # self.execute_on_complete_input = True
+
+    def _in_napari(self, n: int, frame: FrameType):
+        """
+        Predicates that return Wether we are in napari by looking
+        at:
+            1) the frames modules names:
+            2) the min_depth
+        """
+        # in-n-out is used in napari for dependency injection.
+        if n <= self.min_depth:
+            return True
+        for pref in _PREF_LIST:
+            if frame.f_globals.get("__name__", "").startswith(pref):
+                return True
+        return False
+
+    def _capture(self):
+        """
+        Capture variable from first enclosing scope that is not napari
+        """
+        with CallerFrame(self._in_napari) as c:
+            if "NAPARI_EMBED" not in c.frame.f_globals:
+                self.push(dict(c.namespace))
 
     def _update_theme(self, event=None, style_sheet=''):
         """Update the napari GUI theme."""
