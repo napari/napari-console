@@ -75,6 +75,8 @@ class QtConsole(RichJupyterWidget):
     ----------
     max_depth : int
         maximum number of frames to consider being outside of napari.
+    style_sheet: str
+        String representing the style sheet the console should follow
 
     Attributes
     ----------
@@ -94,6 +96,12 @@ class QtConsole(RichJupyterWidget):
         self.viewer = viewer
 
         self.min_depth = min_depth
+
+        # Connect theme update
+        if not style_sheet:
+            # napari <0.5.5 relies on viewer theme event to update the style
+            # (without passing a style value when creating a console)
+            self.viewer.events.theme.connect(self._update_theme)
 
         user_variables = {'viewer': self.viewer}
 
@@ -181,24 +189,23 @@ class QtConsole(RichJupyterWidget):
 
     def _update_theme(self, event=None, style_sheet=''):
         """Update the napari GUI theme."""
-        from napari.qt import get_stylesheet
-        from napari.utils.theme import get_theme, template
-
-        # After napari 0.5.0 the `as_dict` kwarg has been deprecated
-        # and will be removed in a future version.
-        theme = get_theme(self.viewer.theme, as_dict=True)
-        # In the future, with napari 0.5.0+, the following syntax will be allowed
-        # theme = get_theme(self.viewer.theme).to_rgb_dict()
+        from napari.utils.theme import get_theme
 
         # qtconsole unfortunately won't inherit the parent stylesheet
         # so it needs to be directly set when required.
         if style_sheet:
-            # napari 0.5.x uses the `style_sheet` kwarg
+            # napari 0.5.x uses the `style_sheet` kwarg and the `to_rgb_dict` theme method
+            theme = get_theme(self.viewer.theme).to_rgb_dict()
             self.style_sheet = style_sheet
         else:
-            # napari 0.4.x doesn't use the `style_sheet` kwarg
+            # napari 0.4.x doesn't use the `style_sheet` kwarg and uses the deprecated
+            # `as_dict` kwarg for the `get_theme` function call
+            from napari.qt import get_stylesheet
+            from napari.utils.theme import template
+
+            theme = get_theme(self.viewer.theme, as_dict=True)
             raw_stylesheet = get_stylesheet()
-            # template and apply the primary stylesheet
+            # get template and apply the primary stylesheet
             # (should probably be done by napari)
             # After napari 0.4.11, themes are evented models rather than
             # dicts.
