@@ -26,10 +26,12 @@ def make_test_viewer(qtbot, request):
 def test_console(qtbot, make_test_viewer):
     """Test creating the console."""
     viewer = make_test_viewer()
-    console = QtConsole(viewer)
+    style_sheet = viewer.window._qt_window.styleSheet()
+    console = QtConsole(viewer, style_sheet=style_sheet)
     qtbot.addWidget(console)
     assert console.kernel_client is not None
     assert console.viewer is viewer
+    assert console.style_sheet == style_sheet
 
 
 def test_ipython_console(qtbot, make_test_viewer):
