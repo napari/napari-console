@@ -194,11 +194,11 @@ class QtConsole(RichJupyterWidget):
         # qtconsole unfortunately won't inherit the parent stylesheet
         # so it needs to be directly set when required.
         if style_sheet:
-            # napari 0.5.x uses the `style_sheet` kwarg and the `to_rgb_dict` theme method
+            # napari >=0.5.5 uses the `style_sheet` kwarg and the `to_rgb_dict` theme method
             theme = get_theme(self.viewer.theme).to_rgb_dict()
             self.style_sheet = style_sheet
         else:
-            # napari 0.4.x doesn't use the `style_sheet` kwarg and uses the deprecated
+            # napari 0.4.x and <0.5.5 doesn't use the `style_sheet` kwarg and uses the deprecated
             # `as_dict` kwarg for the `get_theme` function call
             from napari.qt import get_stylesheet
             from napari.utils.theme import template
