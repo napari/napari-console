@@ -89,6 +89,7 @@ class QtConsole(RichJupyterWidget):
     """
 
     min_depth: Optional[int]
+    viewer_number: int = 0
 
     def __init__(self, viewer: 'napari.viewer.Viewer', *, min_depth: int = 1, style_sheet: str = ''):
         super().__init__()
@@ -115,6 +116,7 @@ class QtConsole(RichJupyterWidget):
         if shell is None:
             # If there is no currently running instance create an in-process
             # kernel.
+            user_variables.update({f'viewer{self.viewer_number}': self.viewer})
             kernel_manager = QtInProcessKernelManager()
             kernel_manager.start_kernel(show_banner=False)
             kernel_manager.kernel.gui = 'qt'
@@ -131,6 +133,8 @@ class QtConsole(RichJupyterWidget):
             # it is likely because multiple viewers have been launched from
             # the same process. In that case create a new kernel manager but
             # connect to the existing kernel.
+            self.viewer_number += 1
+            user_variables.update({f'viewer{self.viewer_number}': self.viewer})
             kernel_manager = QtInProcessKernelManager(kernel=shell.kernel)
             kernel_client = kernel_manager.client()
             kernel_client.start_channels()
