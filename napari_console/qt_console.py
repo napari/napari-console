@@ -129,10 +129,11 @@ class QtConsole(RichJupyterWidget):
         elif type(shell) == InProcessInteractiveShell:
             # If there is an existing running InProcessInteractiveShell
             # it is likely because multiple viewers have been launched from
-            # the same process. In that case create a new kernel.
-            # Connect existing kernel
+            # the same process. In that case create a new kernel manager but
+            # connect to the existing kernel.
             kernel_manager = QtInProcessKernelManager(kernel=shell.kernel)
             kernel_client = kernel_manager.client()
+            kernel_client.start_channels()
 
             self.kernel_manager = kernel_manager
             self.kernel_client = kernel_client
