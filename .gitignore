@@ -80,3 +80,6 @@ target/
 
 # pycharm stuff
 .idea/
+
+# spyder project config
+.spyproject
