@@ -14,6 +14,7 @@ from qtconsole.client import QtKernelClient
 from qtconsole.inprocess import QtInProcessKernelManager
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QApplication
 
 
 from napari.utils.naming import CallerFrame
@@ -161,6 +162,9 @@ class QtConsole(RichJupyterWidget):
 
         # Set stylings
         self._update_theme(style_sheet=style_sheet)
+        
+        # Connect logic to update `viewer` variable when needed
+        QApplication.instance().focusChanged.connect(self._update_viewer_reference)
 
         # TODO: Try to get console from jupyter to run without a shift click
         # self.execute_on_complete_input = True
@@ -219,6 +223,26 @@ class QtConsole(RichJupyterWidget):
         self.syntax_style = theme['syntax_style']
         bracket_color = QColor(*str_to_rgb(theme['highlight']))
         self._bracket_matcher.format.setBackground(bracket_color)
+
+    def _update_viewer_reference(self, old, new):
+        """
+        Update the `viewer` variable to ensure it points to this console viewer
+        when multiple consoles are using the same kernel.
+
+        This is connected to the `QApplication.focusChanged` signal to check if
+        updating the `viewer` variable in the kernel is needed (i.e the focused
+        widget is this console control widget so `viewer` should point to
+        `self.viewer`).
+
+        Parameters
+        ----------
+        old : qtpy.QtWidgets.QWidget
+            Widget that had previously the focus.
+        new : qtpy.QtWidgets.QWidget
+            Widget that now has the focus.
+        """
+        if self._control == new:
+            self.push({'viewer': self.viewer})
 
     def closeEvent(self, event):
         """Clean up the integrated console in napari."""
