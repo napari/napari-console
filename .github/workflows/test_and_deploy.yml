@@ -62,7 +62,7 @@ jobs:
           PYVISTA_OFF_SCREEN: True
 
       - name: Coverage
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
 
   deploy:
     # this will run when you have tagged a commit, starting with "v*"
