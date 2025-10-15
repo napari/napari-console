@@ -97,12 +97,6 @@ class QtConsole(RichJupyterWidget):
 
         self.min_depth = min_depth
 
-        # Connect theme update
-        if not style_sheet:
-            # napari <0.5.5 relies on viewer theme event to update the style
-            # (without passing a style value when creating a console)
-            self.viewer.events.theme.connect(self._update_theme)
-
         user_variables = {'viewer': self.viewer}
 
         # this makes calling `setFocus()` on a QtConsole give keyboard focus to
@@ -195,26 +189,9 @@ class QtConsole(RichJupyterWidget):
         # qtconsole unfortunately won't inherit the parent stylesheet
         # so it needs to be directly set when required.
         if style_sheet:
-            # napari >=0.5.5 uses the `style_sheet` kwarg and the `to_rgb_dict` theme method
-            theme = get_theme(self.viewer.theme).to_rgb_dict()
             self.style_sheet = style_sheet
-        else:
-            # napari 0.4.x and <0.5.5 doesn't use the `style_sheet` kwarg and uses the deprecated
-            # `as_dict` kwarg for the `get_theme` function call
-            from napari.qt import get_stylesheet
-            from napari.utils.theme import template
 
-            theme = get_theme(self.viewer.theme, as_dict=True)
-            raw_stylesheet = get_stylesheet()
-            # get template and apply the primary stylesheet
-            # (should probably be done by napari)
-            # After napari 0.4.11, themes are evented models rather than
-            # dicts.
-            self.style_sheet = template(raw_stylesheet, **theme)
-
-            # After napari 0.4.6 the following syntax will be allowed
-            # self.style_sheet = get_stylesheet(self.viewer.theme)
-
+        theme = get_theme(self.viewer.theme).to_rgb_dict()
         # Set syntax styling and highlighting using theme
         self.syntax_style = theme['syntax_style']
         bracket_color = QColor(*str_to_rgb(theme['highlight']))
