@@ -36,7 +36,7 @@ readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.9"
 dependencies = [
   "IPython>=7.7.0",
-  "ipykernel>=5.2.0",
+  "ipykernel>=5.2.0,<0.7",
   "qtconsole!=4.7.6,!=5.4.2,>=4.5.1",
   "qtpy>=1.7.0",
 ]
