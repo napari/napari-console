@@ -29,13 +29,14 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Software Development :: Testing",
 ]
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.10"
 dependencies = [
   "IPython>=7.7.0",
-  "ipykernel>=5.2.0,<7",
+  "ipykernel>=7.1",
   "qtconsole!=4.7.6,!=5.4.2,>=4.5.1",
   "qtpy>=1.7.0",
 ]
