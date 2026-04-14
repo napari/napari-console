@@ -19,7 +19,7 @@ from qtpy.QtGui import QColor
 from napari.utils.naming import CallerFrame
 
 
-_PREF_LIST = ["napari.", "napari_console.", "in_n_out.", "qtpy."]
+_PREF_LIST = ["napari.", "napari_console.", "in_n_out.", "qtpy.", "vispy.", "app_model."]
 
 
 def str_to_rgb(arg):
