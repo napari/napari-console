@@ -1,4 +1,4 @@
-# napari-console (WIP, under active development)
+# napari-console
 
 [![License](https://img.shields.io/pypi/l/napari-console.svg?color=green)](https://github.com/napari/napari-console/raw/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-console.svg?color=green)](https://pypi.org/project/napari-console)
@@ -6,21 +6,36 @@
 [![tests](https://github.com/napari/napari-console/workflows/tests/badge.svg)](https://github.com/napari/napari-console/actions)
 [![codecov](https://codecov.io/gh/napari/napari-console/branch/main/graph/badge.svg)](https://codecov.io/gh/napari/napari-console)
 
-A plugin that adds a console to napari
+A plugin that adds a console to [napari]. This plugin is maintained by the [@napari] team.
 
-----------------------------------
+`napari-console` adds an interactive console based on IPython to `napari`. The napari UI contains a
+[console button](https://napari.org/dev/getting_started/viewer.html#console-button) to display the
+console. This button is enabled if you launch napari from the command line, a script, or use the
+napari bundled app.
 
-This [napari] plugin was generated with [Cookiecutter] using with [@napari]'s [cookiecutter-napari-plugin] template.
+![napari-console in napari UI](https://github.com/napari/docs/blob/main/docs/_static/images/console.png)
 
-<!--
-Don't miss the full getting started guide to set up your new package:
-https://github.com/napari/cookiecutter-napari-plugin#getting-started
+## License
 
-and review the napari docs for plugin developers:
-https://napari.org/docs/plugins/index.html
--->
+Distributed under the terms of the [BSD-3] license,
+"napari-console" is free and open source software
 
-## Local variables
+## Issues
+
+If you encounter any problems, please file an issue along with a detailed description.
+
+## Contributing
+
+Contributions are very welcome. Tests can be run with [tox]. Please ensure
+test coverage results remain the same or higher than before you submit a pull request.
+
+## Installation
+
+You can install `napari-console` via [pip]:
+
+    pip install napari-console
+
+## Local variables and napari-console
 
 In napari-console 0.0.8 and earlier, the console `locals()` namespace only
 contained a reference to the napari viewer that enclosed the console.
@@ -51,42 +66,13 @@ instantiated, finding the first frame that is outside of the `napari_console`,
 `f_locals` and `f_globals` to the console namespace.
 
 If you want to disable this behavior (for example, because you are embedding
-napari and the console within some larger application), you can add
+napari and the console within some larger application), add
 `NAPARI_EMBED=1` to your environment variables before instantiating the
 console.
 
-## Installation
-
-You can install `napari-console` via [pip]:
-
-    pip install napari-console
-
-## Contributing
-
-Contributions are very welcome. Tests can be run with [tox], please ensure
-the coverage at least stays the same before you submit a pull request.
-
-## License
-
-Distributed under the terms of the [BSD-3] license,
-"napari-console" is free and open source software
-
-## Issues
-
-If you encounter any problems, please [file an issue] along with a detailed description.
-
 [napari]: https://github.com/napari/napari
-[Cookiecutter]: https://github.com/audreyr/cookiecutter
 [@napari]: https://github.com/napari
-[MIT]: http://opensource.org/licenses/MIT
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
-[GNU GPL v3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
-[GNU LGPL v3.0]: http://www.gnu.org/licenses/lgpl-3.0.txt
-[Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
-[Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
-[cookiecutter-napari-plugin]: https://github.com/napari/cookiecutter-napari-plugin
-[file an issue]: https://github.com/sofroniewn/napari-console/issues
 [napari]: https://github.com/napari/napari
 [tox]: https://tox.readthedocs.io/en/latest/
 [pip]: https://pypi.org/project/pip/
-[PyPI]: https://pypi.org/
