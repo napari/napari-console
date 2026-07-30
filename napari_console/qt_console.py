@@ -1,3 +1,6 @@
+import os
+os.environ.setdefault("PYDEVD_DISABLE_FILE_VALIDATION", "1")
+
 import re
 import sys
 import warnings
@@ -135,7 +138,7 @@ class QtConsole(RichJupyterWidget):
             self.push = self.shell.push
         elif isinstance(shell, (TerminalInteractiveShell, ZMQInteractiveShell)):
             # if launching from an ipython or jupyter then adding a console is
-            # not supported. Instead users should use the existing interactive 
+            # not supported. Instead users should use the existing interactive
             # terminal for the same functionality.
             self.kernel_client = None
             self.kernel_manager = None
