@@ -16,12 +16,16 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.platform }} py${{ matrix.python-version }}
+    name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{ matrix.qt-package || 'qt6' }}
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10", "3.14"]
+        include:
+          - platform: ubuntu-latest
+            python-version: "3.10"
+            qt-package: pyqt5
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -56,7 +60,8 @@ jobs:
       - name: Test with tox
         uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
         with:
-          run: python -m tox -v
+          # pyqt5 matrix include runs the explicit legacy env; default jobs run envlist
+          run: python -m tox -v ${{ matrix.qt-package == 'pyqt5' && '-e py310-linux-pyqt5' || '' }}
         env:
           PLATFORM: ${{ matrix.platform }}
           PYVISTA_OFF_SCREEN: True

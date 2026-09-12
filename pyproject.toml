@@ -44,24 +44,21 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 
-pyside2 = [
-  "PySide2>=5.13.2,!=5.15.0 ; python_version < '3.11' and platform_machine != 'arm64'",
-]
-pyside6_experimental = [
-  "PySide6 < 6.5 ; python_version < '3.12'"
+pyside6 = [
+  "PySide6 > 6.7"
 ]
 pyqt6 = [
   "PyQt6 > 6.5",
   "PyQt6 != 6.6.1 ; platform_system == 'Darwin'"
 ]
 pyside = [
-  "napari-console[pyside2]"
+  "napari-console[pyside6]"
 ]
 pyqt5 = [
   "PyQt5>=5.13.2,!=5.15.0",
 ]
 pyqt = [
-  "napari-console[pyqt5]"
+  "napari-console[pyqt6]"
 ]
 qt = [
   "napari-console[pyqt]"
