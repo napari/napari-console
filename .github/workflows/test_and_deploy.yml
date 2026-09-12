@@ -16,16 +16,12 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.platform }} py${{ matrix.python-version }} ${{ matrix.qt-package || 'qt6' }}
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10", "3.14"]
-        include:
-          - platform: ubuntu-latest
-            python-version: "3.10"
-            qt-package: pyqt5
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -51,19 +47,47 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools tox tox-gh-actions
 
-      - name: Install tox-conda
-        if: runner.os == 'macOS' && matrix.python-version == '3.10'
-        #  we are explicit about tox-gh-action or pip resolver will downgrade
-        #  tox, which will be incompatible with tox-gh-action
-        run: pip install tox-conda tox-gh-actions
+      - name: Test with tox
+        uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
+        with:
+          run: python -m tox -v
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          PYVISTA_OFF_SCREEN: True
+
+      - name: Coverage
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+
+  test-pyqt5:
+    # legacy Qt5 check: single linux run (deprecated in napari 0.8.0,
+    # removal Q4 2026 — drop this job with the pyqt5 tox env).
+    # NOTE: kept as a separate job (not a matrix `include`) because
+    # `include` entries matching an existing combination get merged into it
+    # instead of adding a new job — that silently replaced ubuntu py3.10 qt6.
+    name: ubuntu-latest py3.10 pyqt5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - uses: tlambert03/setup-qt-libs@19e4ef2d781d81f5f067182e228b54ec90d23b76 # v1.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools tox tox-gh-actions
 
       - name: Test with tox
         uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
         with:
-          # pyqt5 matrix include runs the explicit legacy env; default jobs run envlist
-          run: python -m tox -v ${{ matrix.qt-package == 'pyqt5' && '-e py310-linux-pyqt5' || '' }}
+          run: python -m tox -v -e py310-linux-pyqt5
         env:
-          PLATFORM: ${{ matrix.platform }}
+          PLATFORM: ubuntu-latest
           PYVISTA_OFF_SCREEN: True
 
       - name: Coverage
