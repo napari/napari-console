@@ -29,6 +29,14 @@ jobs:
           # full dual-backend coverage lives on py3.14
           - python-version: "3.11"
             qt-binding: pyside6
+        include:
+          # add pyqt5 coverage on py3.14 only (py3.11 is covered by the dedicated job)
+          - platform: ubuntu-latest
+            python-version: "3.11"
+            qt-binding: pyqt5
+          - platform: ubuntu-latest
+            python-version: "3.15"
+            qt-binding: pyqt6
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -42,21 +50,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
-
-      - uses: tlambert03/setup-qt-libs@19e4ef2d781d81f5f067182e228b54ec90d23b76 # v1.8
-
-      # strategy borrowed from vispy for installing opengl libs on windows
-      - name: Install Windows OpenGL
-        if: runner.os == 'Windows'
-        run: |
-          git clone --depth 1 https://github.com/pyvista/gl-ci-helpers.git
-          powershell gl-ci-helpers/appveyor/install_opengl.ps1
-          if (Test-Path -Path "C:\Windows\system32\opengl32.dll" -PathType Leaf) {Exit 0} else {Exit 1}
+  
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4.3
+        with:
+          qt: true
+          wm: herbstluftwm
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools tox tox-gh-actions
+          pip install setuptools tox tox-gh-actions tox-uv
 
       - name: Test with tox
         uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
@@ -65,43 +69,6 @@ jobs:
         env:
           PLATFORM: ${{ matrix.platform }}
           QT_PACKAGE: ${{ matrix.qt-binding }}
-          PYVISTA_OFF_SCREEN: True
-
-      - name: Coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-
-  test-pyqt5:
-    # legacy Qt5 check: single linux run (deprecated in napari 0.8.0,
-    # removal Q4 2026 — drop this job with the pyqt5 tox env).
-    # NOTE: kept as a separate job (not a matrix `include`) because
-    # `include` entries matching an existing combination get merged into it
-    # instead of adding a new job — that silently replaced ubuntu py3.10 qt6.
-    name: ubuntu-latest py3.11 pyqt5
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0 # full history + tags for setuptools_scm (see test job)
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - uses: tlambert03/setup-qt-libs@19e4ef2d781d81f5f067182e228b54ec90d23b76 # v1.8
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools tox tox-gh-actions
-
-      - name: Test with tox
-        uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
-        with:
-          run: python -m tox -v -e py311-linux-pyqt5
-        env:
-          PLATFORM: ubuntu-latest
           PYVISTA_OFF_SCREEN: True
 
       - name: Coverage
