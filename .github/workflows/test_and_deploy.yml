@@ -22,18 +22,8 @@ jobs:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.11", "3.14"]
-        qt-binding: [pyqt6, pyside6]
-        exclude:
-          # py3.11 covers pyqt6 only (plus the dedicated pyqt5 sentry job);
-          # full dual-backend coverage lives on py3.14
-          - python-version: "3.11"
-            qt-binding: pyside6
-        include:
-          # add pyqt5 coverage on py3.14 only (py3.11 is covered by the dedicated job)
-          - platform: ubuntu-latest
-            python-version: "3.11"
-            qt-binding: pyqt5
+        python-version: ["3.11", "3.15"]
+        qt-binding: [pyqt6, pyside6, pyqt5]
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
