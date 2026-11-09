@@ -23,7 +23,20 @@ jobs:
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.15"]
-        qt-binding: [pyqt6, pyside6, pyqt5]
+        qt-binding: [pyqt6, pyside6]
+        include:
+          # py3.11 covers pyqt6 only
+          # full dual-backend coverage lives on py3.15
+          - python-version: "3.11"
+            qt-binding: pyside6
+        include:
+          # add pyqt5 sentry tests, only up to 3.14 (after pyqt5 is not supprted in napari)
+          - platform: ubuntu-latest
+            python-version: "3.11"
+            qt-binding: pyqt5
+          - platform: ubuntu-latest
+            python-version: "3.14"
+            qt-binding: pyqt5
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
