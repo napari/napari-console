@@ -24,7 +24,7 @@ jobs:
         platform: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.15"]
         qt-binding: [pyqt6, pyside6]
-        include:
+        exclude:
           # py3.11 covers pyqt6 only
           # full dual-backend coverage lives on py3.15
           - python-version: "3.11"
