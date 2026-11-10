@@ -77,8 +77,25 @@ jobs:
           QT_PACKAGE: ${{ matrix.qt-binding }}
           PYVISTA_OFF_SCREEN: True
 
+      - name: Upload coverage data 
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage reports ${{ inputs.platform }} py ${{ inputs.python_version }} ${{ inputs.qt-binding }}
+          include-hidden-files: true
+          path: |
+            ./.coverage.*
+
       - name: Coverage
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+
+  coverage_report:
+    if: ${{ always() }}
+    secrets: inherit
+    needs:
+      - test
+    uses: napari/shared-workflows/.github/workflows/upload_coverage.yml@main
+    with:
+      artifact-pattern: 'coverage reports*'
 
   deploy:
     # this will run when you have tagged a commit, starting with "v*"
